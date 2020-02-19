@@ -1,0 +1,35 @@
+#!/bin/bash
+cmd=$0
+argv=($@)
+
+infile=${argv[0]}
+delim=${argv[1]}
+keynum=`expr ${#argv[@]} - 2`
+
+keyfld=(${argv[@]})
+
+unset keyfld[0]
+unset keyfld[1]
+keyfld=(${keyfld[@]})
+
+cutfiles=()
+for i in ${!keyfld[@]}; do
+   echo CUT file:${infile}.cut$i
+   cut -d ${delim} -f ${keyfld[${i}]} ${infile} > ${infile}.cut$i
+
+   cutfiles=(${cutfiles[@]} ${infile}.cut$i)
+done
+
+paste -d ${delim} ${cutfiles[@]} > ${infile}.paste
+
+echo DELETE files:${cutfiles[@]} 
+for i in ${!keyfld[@]}; do
+   if [ -f ${infile}.cut$i ]
+   then
+       #echo delete file:${infile}.cut$i
+       rm ${infile}.cut$i
+   fi
+done
+
+echo ret=$?
+
